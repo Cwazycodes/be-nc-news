@@ -3,6 +3,9 @@ const app = require("../db/app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+const fs = require('fs')
+const path = require('path')
+
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -38,3 +41,72 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+
+
+describe('GET /api', () => {
+    let server
+
+    beforeAll(() => {
+        server = app.listen()
+    })
+
+    afterAll((done) => {
+        server.close(done)
+    })
+
+    it('should return a JSON object describing all endpoints', () => {
+        request(server)
+        .get('/api')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .then((res) => {
+         
+                console.log(res.body)
+                expect(res.body).toHaveProperty('GET /api')
+                expect(res.body['GET /api']).toHaveProperty('description')
+                expect(res.body['GET /api'].description).toBe('serves up a json representation of all the available endpoints of the api')
+                expect(res.body['GET /api/topics']).toHaveProperty('description')
+                expect(res.body['GET /api/topics']).toHaveProperty('queries')
+                expect(res.body['GET /api/topics']).toHaveProperty('exampleResponse')
+                expect(res.body['GET /api/topics'].description).toBe('serves an array of all topics')
+                expect(res.body['GET /api/topics'].exampleResponse).toEqual({ topics: [Array] })
+               
+            
+        }).catch((err) => err)
+    })
+
+    
+    it('should have the correct information matching endpoints.json', () => {
+        const endpointsFile = path.join(__dirname, '..', 'endpoints.json')
+        const expectedEndpoints = JSON.parse(fs.readFileSync(endpointsFile, 'utf-8'))
+
+        request(server)
+        .get('/api')
+        .expect(200)
+        .then((res) => {
+            expect(res.body).toEqual(expectedEndpoints)
+         
+        })
+        .catch((err) => err)
+    })
+
+    it('should handle errors when reading endpoints.json', () => {
+
+        const wrongFilePath = path.join(__dirname, '..', 'non-existent-file.json')
+        jest.spyOn(path, 'join').mockImplementation(() => wrongFilePath)
+
+        request(server)
+        .get('/api')
+        .expect(500)
+        .then((res) => {
+            expect(res.body).toEqual({error: 'Internal Server Error'})
+            jest.restoreAllMocks()
+            
+        })
+        .catch((err) => {
+            jest.restoreAllMocks()
+            return err
+        })
+    })
+})
