@@ -16,8 +16,9 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
-        console.log(body);
-        expect(Array.isArray(body.topics)).toBe(true);
+       
+
+        expect(body.topics.length).toBe(3)
         body.topics.forEach((topic) => {
           expect(topic).toEqual(
             expect.objectContaining({
@@ -62,7 +63,7 @@ describe('GET /api', () => {
         .expect(200)
         .then((res) => {
          
-                console.log(res.body)
+              
                 expect(res.body).toHaveProperty('GET /api')
                 expect(res.body['GET /api']).toHaveProperty('description')
                 expect(res.body['GET /api'].description).toBe('serves up a json representation of all the available endpoints of the api')
@@ -109,4 +110,27 @@ describe('GET /api', () => {
             return err
         })
     })
+})
+
+describe('GET /api/articles/:article_id', () => {
+  it('responds with an article object with correct article_id given', () => {
+    return request(app)
+    .get('/api/articles/1')
+    .expect(200)
+    .then((res) => {
+       
+        expect(Object.values(res.body.article).length).toBe(8)
+        expect(res.body.article.article_id).toBe(1)
+    })
+  })
+
+  it('responds with an error when the given valid id is not registered', () => {
+    return request(app)
+    .get('/api/articles/87964')
+    .expect(404)
+    .then((res) => {
+        expect(res.body.msg).toBe('Not Found')
+    })
+  })
+    
 })
