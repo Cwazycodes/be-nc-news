@@ -13,6 +13,7 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
+        console.log(body);
         expect(Array.isArray(body.topics)).toBe(true);
         body.topics.forEach((topic) => {
           expect(topic).toEqual(
@@ -22,6 +23,18 @@ describe("GET /api/topics", () => {
             })
           );
         });
+      });
+  });
+
+  it("contains the correct data", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.topics[0].slug).toBe("mitch");
+        expect(body.topics[0].description).toBe(
+          "The man, the Mitch, the legend"
+        );
       });
   });
 });
