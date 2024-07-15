@@ -1,8 +1,14 @@
 const express = require("express");
 const { getTopics } = require("../controllers/topics.controller");
+const apiController = require('../controllers/api.controller')
+
 const app = express();
 
 app.use("/api/topics", getTopics);
+
+app.use(express.json())
+app.use('/api', apiController.getEndpoints)
+
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
