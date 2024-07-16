@@ -221,7 +221,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then((res) => {
-        console.log(res.body.comments, "RBC <<<<<<<<<<<<<<<<<<");
         expect(res.body.comments.length).toBeGreaterThan(0);
         res.body.comments.forEach((comment) => {
           expect(comment).toMatchObject({
@@ -264,6 +263,68 @@ describe("GET /api/articles/:article_id/comments", () => {
   it("responds with a 400 error for an invalid article ID type", () => {
     return request(app)
       .get("/api/articles/invalid-id/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid article ID type");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  it("adds a comment to the specifies article and responds with the posted comment", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This is a new comment.",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then((res) => {
+        expect(res.body.comment).toMatchObject({
+          comment_id: expect.any(Number),
+          votes: 0,
+          created_at: expect.any(String),
+          author: newComment.username,
+          body: newComment.body,
+          article_id: 1,
+        });
+      });
+  });
+
+  it("responds with a 400 error when required fields are missing", () => {
+    const newComment = { body: "This comment is missing a username." };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Missing required fields");
+      });
+  });
+
+  it("responds with a 404 error when the specified article does not exist", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This is a new comment.",
+    };
+    return request(app)
+      .post("/api/articles/99999/comments")
+      .send(newComment)
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Article or user not found");
+      });
+  });
+
+  it("responds with a 400 error for an invalid article ID type", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This is a new comment.",
+    };
+    return request(app)
+      .post("/api/articles/invalid-id/comments")
+      .send(newComment)
       .expect(400)
       .then((res) => {
         expect(res.body.msg).toBe("Invalid article ID type");

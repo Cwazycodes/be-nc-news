@@ -24,6 +24,42 @@ const fetchCommentsByArticleId = (article_id) => {
         });
       }
       return result.rows;
+    })
+    .catch((err) => {
+      if (err.code === "22P02") {
+        return Promise.reject({ status: 400, msg: "Invalid article ID type" });
+      }
+      return Promise.reject(err);
     });
 };
-module.exports = { fetchCommentsByArticleId };
+
+const insertCommentByArticleId = (article_id, author, body) => {
+  if (!author || !body) {
+    return Promise.reject({ status: 400, msg: "Missing required fields" });
+  }
+
+  return db
+    .query(
+      `
+    INSERT INTO comments (article_id, author, body)
+    VALUES ($1, $2, $3)
+    RETURNING *;`,
+      [article_id, author, body]
+    )
+    .then((result) => {
+      return result.rows[0];
+    })
+    .catch((err) => {
+      if (err.code === "23503") {
+        return Promise.reject({
+          status: 404,
+          msg: "Article or user not found",
+        });
+      }
+      if (err.code === "22P02") {
+        return Promise.reject({ status: 400, msg: "Invalid article ID type" });
+      }
+      return Promise.reject(err);
+    });
+};
+module.exports = { fetchCommentsByArticleId, insertCommentByArticleId };

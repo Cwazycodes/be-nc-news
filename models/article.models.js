@@ -12,7 +12,13 @@ const fetchArticleById = (id) => {
       }
 
       return result.rows[0];
-    });
+    })
+    .catch((err) => {
+        if (err.code === '22P02') {
+            return Promise.reject({status: 400, msg: 'Invalid article ID type'})
+        }
+        return Promise.reject(err)
+    })
 };
 
 const fetchArticles = () => {
@@ -46,7 +52,7 @@ const fetchArticles = () => {
       }));
     })
     .catch((err) => {
-      throw new Error("Error fetching articles: ${err.message}");
+      throw new Error(`Error fetching articles: ${err.message}`);
     });
 };
 
