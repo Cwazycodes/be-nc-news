@@ -127,6 +127,14 @@ describe("GET /api/articles/:article_id", () => {
         expect(res.body.msg).toBe("Not Found");
       });
   });
+  it("responds with a 400 error for an invalid article ID type", () => {
+    return request(app)
+      .get("/api/articles/invalid-id")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid article ID type");
+      });
+  });
 });
 
 describe("GET /api/articles", () => {
@@ -158,47 +166,107 @@ describe("GET /api/articles", () => {
       .then(({ body }) => {
         expect(body.articles[0].author).toBe("icellusedkars");
         expect(body.articles[0].title).toBe(
-            "Eight pug gifs that remind me of mitch"
+          "Eight pug gifs that remind me of mitch"
         );
         expect(body.articles[0].article_id).toBe(3);
         expect(body.articles[0].topic).toBe("mitch");
         expect(body.articles[0].created_at).toBe("2020-11-03T09:12:00.000Z");
         expect(body.articles[0].votes).toBe(0);
         expect(body.articles[0].article_img_url).toBe(
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         );
-        
+
         expect(body.articles[0].comment_count).toBe(2);
       });
   });
 
-  it('responds with articles in correct order', () => {
+  it("responds with articles in correct order", () => {
     return request(app)
-    .get('/api/articles')
-    .expect(200)
-    .then(response => {
-        const {articles} = response.body
-        for (let i =0; i < articles.length - 1; i++) {
-            expect(new Date(articles[i].created_at).getTime()).toBeGreaterThanOrEqual(new Date(articles[i + 1].created_at).getTime())
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        for (let i = 0; i < articles.length - 1; i++) {
+          expect(
+            new Date(articles[i].created_at).getTime()
+          ).toBeGreaterThanOrEqual(
+            new Date(articles[i + 1].created_at).getTime()
+          );
         }
-    })
-  })
+      });
+  });
 
-  it('handles errors gracefully', () => {
-    jest.spyOn(db, 'query').mockImplementation(() => {
-        throw new Error('Database error')
-    })
+  it("handles errors gracefully", () => {
+    jest.spyOn(db, "query").mockImplementation(() => {
+      throw new Error("Database error");
+    });
 
     return request(app)
-    .get('/api/articles')
-    .expect(500)
-    .then((response) => {
-        const {error} = response.body
-        expect(error).toBeDefined()
-        expect(error.message).toBe('Database error')
-    })
-    .finally(() => {
-        db.query.mockRestore()
-    })
-  })
+      .get("/api/articles")
+      .expect(500)
+      .then((response) => {
+        const { error } = response.body;
+        expect(error).toBeDefined();
+        expect(error.message).toBe("Database error");
+      })
+      .finally(() => {
+        db.query.mockRestore();
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  it("responds with an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        console.log(res.body.comments, "RBC <<<<<<<<<<<<<<<<<<");
+        expect(res.body.comments.length).toBeGreaterThan(0);
+        res.body.comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: expect.any(Number),
+          });
+        });
+      });
+  });
+
+  it("Contains the correct data in each object", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.comments[0].comment_id).toBe(5);
+        expect(res.body.comments[0].votes).toBe(0);
+        expect(res.body.comments[0].created_at).toBe(
+          "2020-11-03T21:00:00.000Z"
+        );
+        expect(res.body.comments[0].author).toBe("icellusedkars");
+        expect(res.body.comments[0].body).toBe("I hate streaming noses");
+        expect(res.body.comments[0].article_id).toBe(1);
+      });
+  });
+
+  it("responds with a 404 error when no comments are found for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/99999/comments")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("No comments found for this article");
+      });
+  });
+
+  it("responds with a 400 error for an invalid article ID type", () => {
+    return request(app)
+      .get("/api/articles/invalid-id/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid article ID type");
+      });
+  });
 });
