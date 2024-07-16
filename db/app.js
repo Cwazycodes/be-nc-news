@@ -6,10 +6,11 @@ const {
 } = require("../controllers/articles.controller");
 const { getEndpoints } = require("../controllers/api.controller");
 const {
-  getCommentsByArticleId,
+  getCommentsByArticleId, addCommentByArticleId
 } = require("../controllers/comments.controller");
 
 const app = express();
+app.use(express.json())
 
 app.get("/api/topics", getTopics);
 
@@ -19,8 +20,10 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+app.post('/api/articles/:article_id/comments', addCommentByArticleId)
 
 app.use((err, req, res, next) => {
+    console.error('Error handler:', err)
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
   } else if (err.message === "Not Found") {

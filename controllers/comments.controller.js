@@ -1,11 +1,10 @@
-const { fetchCommentsByArticleId } = require("../models/comments.models");
+const {
+  fetchCommentsByArticleId,
+  insertCommentByArticleId,
+} = require("../models/comments.models");
 
 const getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-
-  if (isNaN(parseInt(article_id, 10))) {
-    return next({ status: 400, msg: "Invalid article ID type" });
-  }
 
   fetchCommentsByArticleId(article_id)
     .then((comments) => {
@@ -16,4 +15,19 @@ const getCommentsByArticleId = (req, res, next) => {
     });
 };
 
-module.exports = { getCommentsByArticleId };
+const addCommentByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+
+
+
+  insertCommentByArticleId(article_id, username, body)
+    .then((comment) => {
+      res.status(201).json({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { getCommentsByArticleId, addCommentByArticleId };

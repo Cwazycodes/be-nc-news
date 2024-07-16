@@ -4,9 +4,7 @@ const { fetchArticleById, fetchArticles } = require("../models/article.models");
 const getArticleById = (req, res, next) => {
   const { article_id } = req.params;
 
-  if (isNaN(parseInt(article_id, 10))) {
-    return res.status(400).send({ msg: "Invalid article ID type" });
-  }
+  
 
   fetchArticleById(article_id)
     .then((article) => {
