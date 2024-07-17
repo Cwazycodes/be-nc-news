@@ -340,12 +340,10 @@ describe("PATCH /api/articles/:article_id", () => {
       .send(updateVotes)
       .expect(200)
       .then((res) => {
-        console.log(res.body.article);
         expect(res.body.article).toMatchObject({
           article_id: 1,
-          votes: expect.any(Number),
+          votes: 101,
         });
-        expect(res.body.article.votes).toBe(101)
       });
   });
 
@@ -384,26 +382,57 @@ describe("PATCH /api/articles/:article_id", () => {
 
 describe("DELETE /api/comments/:comment_id", () => {
   it("deletes the given comment and response with 204", () => {
-    return request(app)
-      .delete("/api/comments/1")
-      .expect(204)
-  })
+    return request(app).delete("/api/comments/1").expect(204);
+  });
 
   it("responds with a 404 error when the comment does not exist", () => {
     return request(app)
-    .delete('/api/comments/99999')
-    .expect(404)
-    .then((res) => {
-      expect(res.body.msg).toBe('Comment not found')
-    })
-})
+      .delete("/api/comments/99999")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Comment not found");
+      });
+  });
 
-it("responds with a 400 error for an invalid comment ID type", () => {
-  return request(app)
-  .delete('/api/comments/invalid-id')
-  .expect(400)
-  .then((res) => {
-    expect(res.body.msg).toBe('Invalid comment ID type')
-  })
-})
-})
+  it("responds with a 400 error for an invalid comment ID type", () => {
+    return request(app)
+      .delete("/api/comments/invalid-id")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid comment ID type");
+      });
+  });
+});
+
+describe("GET /api/users", () => {
+  it("Should return an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBe(4);
+        body.users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+
+  it("Contains the correct data", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users[0].username).toBe("butter_bridge");
+        expect(body.users[0].name).toBe("jonny");
+        expect(body.users[0].avatar_url).toBe(
+          'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+        );
+      });
+  });
+});
