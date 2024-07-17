@@ -381,3 +381,29 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  it("deletes the given comment and response with 204", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+  })
+
+  it("responds with a 404 error when the comment does not exist", () => {
+    return request(app)
+    .delete('/api/comments/99999')
+    .expect(404)
+    .then((res) => {
+      expect(res.body.msg).toBe('Comment not found')
+    })
+})
+
+it("responds with a 400 error for an invalid comment ID type", () => {
+  return request(app)
+  .delete('/api/comments/invalid-id')
+  .expect(400)
+  .then((res) => {
+    expect(res.body.msg).toBe('Invalid comment ID type')
+  })
+})
+})
