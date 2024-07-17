@@ -3,6 +3,7 @@ const { getTopics } = require("../controllers/topics.controller");
 const {
   getArticleById,
   getArticles,
+  patchArticleById
 } = require("../controllers/articles.controller");
 const { getEndpoints } = require("../controllers/api.controller");
 const {
@@ -22,6 +23,8 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post('/api/articles/:article_id/comments', addCommentByArticleId)
 
+app.patch('/api/articles/:article_id', patchArticleById )
+
 app.use((err, req, res, next) => {
     console.error('Error handler:', err)
   if (err.status && err.msg) {
@@ -36,5 +39,7 @@ app.use((err, req, res, next) => {
       .send({ error: { message: err.message || "Internal Server Error" } });
   }
 });
+
+
 
 module.exports = app;

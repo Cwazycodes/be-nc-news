@@ -7,7 +7,7 @@ function getEndpoints(req,res) {
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading endpoints file:', err)
-            return res.status(500).json({ error: 'Internal Server Error'})
+            return res.status(500).send({ error: 'Internal Server Error'})
         }
 
         try{
@@ -15,7 +15,7 @@ function getEndpoints(req,res) {
             res.json(endpoints)
         } catch (error) {
             console.error('Error parsing JSON:', error)
-            res.status(500).json({error: 'Internal Server Error'})
+            res.status(500).send({error: 'Internal Server Error'})
         }
     })
 }

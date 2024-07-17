@@ -331,3 +331,53 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  it("updates the votes of a specified article and responds with the updated article", () => {
+    const updateVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updateVotes)
+      .expect(200)
+      .then((res) => {
+        console.log(res.body.article);
+        expect(res.body.article).toMatchObject({
+          article_id: 1,
+          votes: expect.any(Number),
+        });
+        expect(res.body.article.votes).toBe(101)
+      });
+  });
+
+  it("responds with a 400 error when required fields are missing", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Missing required fields");
+      });
+  });
+
+  it("responds with a 404 error when the specified article does not exist", () => {
+    const updateVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/99999")
+      .send(updateVotes)
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Article not found");
+      });
+  });
+
+  it("responds with a 400 error for an invalid article ID type", () => {
+    const updateVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/invalid-id")
+      .send(updateVotes)
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid article ID type");
+      });
+  });
+});

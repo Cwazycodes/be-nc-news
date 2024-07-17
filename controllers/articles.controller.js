@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { fetchArticleById, fetchArticles } = require("../models/article.models");
+const { fetchArticleById, fetchArticles, updateArticleVotes } = require("../models/article.models");
 
 const getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -11,7 +11,7 @@ const getArticleById = (req, res, next) => {
       if (!article) {
         return next({ status: 404, msg: "Not Found" });
       }
-      res.status(200).json({ article });
+      res.status(200).send({ article });
     })
     .catch((err) => {
       console.error(err);
@@ -22,10 +22,21 @@ const getArticleById = (req, res, next) => {
 const getArticles = (req, res, next) => {
   fetchArticles()
     .then((articles) => {
-      res.status(200).json({ articles });
+      res.status(200).send({ articles });
     })
     .catch((err) => {
       next(err);
     });
 };
-module.exports = { getArticleById, getArticles };
+
+const patchArticleById = (req,res,next) => {
+  const {article_id} = req.params
+  const {inc_votes} = req.body
+
+  updateArticleVotes(article_id,inc_votes)
+  .then((article) => {
+    res.status(200).send({article})
+  })
+  .catch(next)
+}
+module.exports = { getArticleById, getArticles, patchArticleById };
