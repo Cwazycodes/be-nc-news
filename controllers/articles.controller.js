@@ -20,13 +20,12 @@ const getArticleById = (req, res, next) => {
 };
 
 const getArticles = (req, res, next) => {
-  fetchArticles()
+  const{sort_by, order} = req.query
+  fetchArticles(sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next)
 };
 
 const patchArticleById = (req,res,next) => {

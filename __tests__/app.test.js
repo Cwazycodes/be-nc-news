@@ -213,6 +213,55 @@ describe("GET /api/articles", () => {
         db.query.mockRestore();
       });
   });
+
+  it("sorts articles by any valid column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        const sortedArticles = [...articles].sort((a, b) =>
+          a.author.localeCompare(b.author)
+        );
+
+        for (let i = 0; i < articles.length - 1; i++) {
+          expect(articles[i].author).toBe(sortedArticles[i].author);
+        }
+      });
+  });
+
+  it("sorts articles in ascending order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        for (let i = 0; i < articles.length - 1; i++) {
+          expect(
+            new Date(articles[i].created_at).getTime()
+          ).toBeLessThanOrEqual(new Date(articles[i + 1].created_at).getTime());
+        }
+      });
+  });
+
+  it("returns 400 for invalid sort_by column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort column");
+      });
+  });
+
+  it("returns 400 for invalid order query", () => {
+    return request(app)
+      .get("/api/articles?order=invalid_order")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order query");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
@@ -431,7 +480,7 @@ describe("GET /api/users", () => {
         expect(body.users[0].username).toBe("butter_bridge");
         expect(body.users[0].name).toBe("jonny");
         expect(body.users[0].avatar_url).toBe(
-          'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
         );
       });
   });
