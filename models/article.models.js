@@ -21,7 +21,7 @@ const fetchArticleById = (id) => {
     });
 };
 
-const fetchArticles = (sort_by = "created_at", order = "desc") => {
+const fetchArticles = (sort_by = "created_at", order = "desc", topic) => {
   const validSortColumns = [
     "author",
     "title",
@@ -39,7 +39,7 @@ const fetchArticles = (sort_by = "created_at", order = "desc") => {
     return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
 
-  const queryStr = `
+  let queryStr = `
   SELECT
       articles.author,
       articles.title,
@@ -51,12 +51,29 @@ const fetchArticles = (sort_by = "created_at", order = "desc") => {
       COUNT(comments.comment_id) AS comment_count
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
-  GROUP BY articles.article_id
-  ORDER BY ${sort_by} ${order};`;
+  `;
+
+  const queryParams = []
+
+  if (topic) {
+    queryStr += ` WHERE articles.topic = $1`
+    queryParams.push(topic)
+  }
+
+  queryStr += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`
 
   return db
-    .query(queryStr)
+    .query(queryStr, queryParams)
     .then((result) => {
+      if (result.rows.length === 0 && topic) {
+        return db.query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+        .then(({rows}) => {
+          if(rows.length === 0) {
+            return Promise.reject({status: 404, msg: 'Topic not found'})
+          }
+          return []
+        })
+      }
       const rows = result.rows.map((article) => ({
         author: article.author,
         title: article.title,
@@ -70,7 +87,10 @@ const fetchArticles = (sort_by = "created_at", order = "desc") => {
       return rows;
     })
     .catch((err) => {
-      throw new Error(`Error fetching articles: ${err.message}`);
+    if (err.status && err.msg) {
+      return Promise.reject(err)
+    }
+    return Promise.reject({status:500, msg: 'Internal Server Error'})
     });
 };
 
