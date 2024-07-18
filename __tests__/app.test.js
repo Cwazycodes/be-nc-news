@@ -282,6 +282,7 @@ describe("GET /api/articles", () => {
       expect(body.msg).toBe('Topic not found')
     })
   })
+  //these 2 tests are missing
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
