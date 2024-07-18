@@ -5,8 +5,8 @@ const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const fs = require("fs");
 const path = require("path");
-const {expect} = require('@jest/globals')
-require('jest-sorted')
+const { expect } = require("@jest/globals");
+require("jest-sorted");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -118,7 +118,7 @@ describe("GET /api/articles/:article_id", () => {
       .then((res) => {
         expect(Object.values(res.body.article).length).toBe(9);
         expect(res.body.article.article_id).toBe(1);
-        expect(res.body.article).toHaveProperty('comment_count')
+        expect(res.body.article).toHaveProperty("comment_count");
       });
   });
 
@@ -222,8 +222,8 @@ describe("GET /api/articles", () => {
       .get("/api/articles?sort_by=author&order=asc")
       .expect(200)
       .then(({ body }) => {
-        const{articles} = body
-       expect(articles).toBeSortedBy('author')
+        const { articles } = body;
+        expect(articles).toBeSortedBy("author");
       });
   });
 
@@ -233,7 +233,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles).toBeSortedBy('created_at', {ascending: true})
+        expect(articles).toBeSortedBy("created_at", { ascending: true });
       });
   });
 
@@ -255,28 +255,35 @@ describe("GET /api/articles", () => {
       });
   });
 
-
   it("returns 200 with articles filtered by the specified topic", () => {
     return request(app)
-    .get('/api/articles?topic=mitch')
-    .expect(200)
-    .then(({body}) => {
-      body.articles.forEach((article) => {
-        expect(article.topic).toBe('mitch')
-      })
-    })
-  })
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
 
-  it('returns 404 when the specified topic does not exist', () => {
+  it("returns 200 with an empty array when the topic exists but there are no articles under that topic", () => {
     return request(app)
-    .get('/api/articles?topic=not-a-topic')
-    .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe('Topic not found')
-    })
-  })
+      .get("/api/articles/?topic=paper")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.articles).toEqual([]);
+      });
+  });
 
-
+  it("returns 404 when the specified topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=not-a-topic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
