@@ -262,6 +262,26 @@ describe("GET /api/articles", () => {
         expect(body.msg).toBe("Invalid order query");
       });
   });
+
+  it("returns 200 with articles filtered by the specified topic", () => {
+    return request(app)
+    .get('/api/articles?topic=mitch')
+    .expect(200)
+    .then(({body}) => {
+      body.articles.forEach((article) => {
+        expect(article.topic).toBe('mitch')
+      })
+    })
+  })
+
+  it('returns 404 when the specified topic does not exist', () => {
+    return request(app)
+    .get('/api/articles?topic=not-a-topic')
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe('Topic not found')
+    })
+  })
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
