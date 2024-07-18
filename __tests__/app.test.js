@@ -5,6 +5,8 @@ const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const fs = require("fs");
 const path = require("path");
+const {expect} = require('@jest/globals')
+require('jest-sorted')
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -114,8 +116,9 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then((res) => {
-        expect(Object.values(res.body.article).length).toBe(8);
+        expect(Object.values(res.body.article).length).toBe(9);
         expect(res.body.article.article_id).toBe(1);
+        expect(res.body.article).toHaveProperty('comment_count')
       });
   });
 
@@ -219,15 +222,8 @@ describe("GET /api/articles", () => {
       .get("/api/articles?sort_by=author&order=asc")
       .expect(200)
       .then(({ body }) => {
-        const { articles } = body;
-
-        const sortedArticles = [...articles].sort((a, b) =>
-          a.author.localeCompare(b.author)
-        );
-
-        for (let i = 0; i < articles.length - 1; i++) {
-          expect(articles[i].author).toBe(sortedArticles[i].author);
-        }
+        const{articles} = body
+       expect(articles).toBeSortedBy('author')
       });
   });
 
@@ -237,11 +233,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        for (let i = 0; i < articles.length - 1; i++) {
-          expect(
-            new Date(articles[i].created_at).getTime()
-          ).toBeLessThanOrEqual(new Date(articles[i + 1].created_at).getTime());
-        }
+        expect(articles).toBeSortedBy('created_at', {ascending: true})
       });
   });
 
@@ -263,6 +255,7 @@ describe("GET /api/articles", () => {
       });
   });
 
+
   it("returns 200 with articles filtered by the specified topic", () => {
     return request(app)
     .get('/api/articles?topic=mitch')
@@ -282,7 +275,8 @@ describe("GET /api/articles", () => {
       expect(body.msg).toBe('Topic not found')
     })
   })
-  //these 2 tests are missing
+
+
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
