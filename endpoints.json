@@ -111,5 +111,28 @@
         }
       ]
     }
+  },
+
+  "GET /api/users/:username": {
+    "description": "Retrieves a user by username",
+    "parameters": {
+      "username": "string (required)"
+    },
+    "responses": {
+      "200": {
+        "description": "Returns a user object",
+        "example": {
+          "username": "butter_bridge",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "name": "jonny"
+        }
+      },
+      "404": {
+        "description": "User not found",
+        "example": {
+          "error": "User not found"
+        }
+      }
+    }
   }
 }
