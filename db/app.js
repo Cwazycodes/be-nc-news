@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const apiRouter = require('../routes/api');
+const apiRouter = require('../routes/api.js');
 const articlesRouter = require('../routes/articles');
 const commentsRouter = require('../routes/comments');
 const topicsRouter = require('../routes/topics');

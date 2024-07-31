@@ -507,3 +507,46 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/users/:username", () => {
+  it("should return a user object with the correct properties", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.user).toHaveProperty("username");
+        expect(res.body.user).toHaveProperty("avatar_url");
+        expect(res.body.user).toHaveProperty("name");
+      });
+  });
+  it("should return a user object with the correct data", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.user.username).toBe("butter_bridge");
+        expect(res.body.user.avatar_url).toBe(
+          'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+        );
+        expect(res.body.user.name).toBe("jonny");
+      });
+  });
+
+  it("should return 404 for a non-existent user", () => {
+    return request(app)
+      .get("/api/users/non_existent_user")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.message).toBe("User not found");
+      });
+  });
+
+  it("should return 400 for an invalid username format", () => {
+    return request(app)
+      .get("/api/users/invalid-username!")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.message).toBe("Invalid username format");
+      });
+  });
+});
