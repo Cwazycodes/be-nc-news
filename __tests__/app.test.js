@@ -526,7 +526,7 @@ describe("GET /api/users/:username", () => {
       .then((res) => {
         expect(res.body.user.username).toBe("butter_bridge");
         expect(res.body.user.avatar_url).toBe(
-          'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
         );
         expect(res.body.user.name).toBe("jonny");
       });
@@ -547,6 +547,50 @@ describe("GET /api/users/:username", () => {
       .expect(400)
       .then((res) => {
         expect(res.body.message).toBe("Invalid username format");
+      });
+  });
+});
+
+describe("PATCH /api/comments/:comment_id", () => {
+  it("should update the votes on a comment and return the updated comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then((res) => {
+        expect(res.body.comment).toHaveProperty("comment_id", 1);
+        expect(res.body.comment).toHaveProperty("votes", expect.any(Number));
+      });
+  });
+
+  it("should decrement the votes on a comment and return the updated comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: -1 })
+      .expect(200)
+      .then((res) => {
+        expect(res.body.comment).toHaveProperty("comment_id", 1);
+        expect(res.body.comment).toHaveProperty("votes", expect.any(Number));
+      });
+  });
+
+  it("should return 400 for an invalid vote increment value", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: "invalid" })
+      .expect(400)
+      .then((res) => {
+        expect(res.body.message).toBe("Invalid vote increment value");
+      });
+  });
+
+  it("should return 404 for a non existent comment", () => {
+    return request(app)
+      .patch("/api/comments/9999")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Comment not found");
       });
   });
 });

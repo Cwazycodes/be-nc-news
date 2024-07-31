@@ -64,20 +64,46 @@ const insertCommentByArticleId = (article_id, author, body) => {
 };
 
 const removeCommentById = (comment_id) => {
-  return db.query(`
+  return db
+    .query(
+      `
   DELETE FROM comments
   WHERE comment_id = $1
-  RETURNING *;`, [comment_id])
-  .then((result) => {
-    if(result.rows.length === 0) {
-      return Promise.reject({status: 404, msg: "Comment not found"})
-    }
-  })
-  .catch((err) => {
-    if (err.code === '22P02') {
-      return Promise.reject({status: 400, msg: 'Invalid comment ID type'})
-    }
-    return Promise.reject(err)
-  })
-}
-module.exports = { fetchCommentsByArticleId, insertCommentByArticleId, removeCommentById };
+  RETURNING *;`,
+      [comment_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+    })
+    .catch((err) => {
+      if (err.code === "22P02") {
+        return Promise.reject({ status: 400, msg: "Invalid comment ID type" });
+      }
+      return Promise.reject(err);
+    });
+};
+
+const updateCommentVotes = (comment_id, inc_votes) => {
+  return db
+    .query(
+      `UPDATE comments
+    SET votes = votes + $1
+    WHERE comment_id = $2
+    RETURNING *;`,
+      [inc_votes, comment_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+      return result.rows[0];
+    });
+};
+module.exports = {
+  fetchCommentsByArticleId,
+  insertCommentByArticleId,
+  removeCommentById,
+  updateCommentVotes,
+};
