@@ -149,5 +149,29 @@
         "body": "This is a comment"
       }
     }
+  },
+
+  "POST /api/articles": {
+    "description": "adds a new article",
+    "example request body": {
+      "author": "butter_bridge",
+      "title": "New Article Title",
+      "body": "This is the body of the new article.",
+      "topic": "mitch",
+      "article_img_url": "http://example.com/image.jpg"
+    },
+    "example response": {
+      "article": {
+        "article_id": 1,
+        "author": "butter_bridge",
+        "title": "New Article Title",
+        "body": "This is the body of the new article.",
+        "topic": "mitch",
+        "article_img_url": "http://example.com/image.jpg",
+        "votes": 0,
+        "created_at": "2024-07-31T10:00:00.000Z",
+        "comment_count": 0
+      }
+    }
   }
 }

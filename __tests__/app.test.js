@@ -594,3 +594,49 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("POST /api/articles", () => {
+  it("should add a new article and return the newly added article", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "New Article Title",
+      body: "This is the body of the new article",
+      topic: "mitch",
+      article_img_url: "https://example.com/image.jpg",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then((res) => {
+        expect(res.body.article).toHaveProperty("article_id");
+        expect(res.body.article).toHaveProperty("author", newArticle.author);
+        expect(res.body.article).toHaveProperty("title", newArticle.title);
+        expect(res.body.article).toHaveProperty("body", newArticle.body);
+        expect(res.body.article).toHaveProperty("topic", newArticle.topic);
+        expect(res.body.article).toHaveProperty(
+          "article_img_url",
+          newArticle.article_img_url
+        );
+        expect(res.body.article).toHaveProperty("votes", 0);
+        expect(res.body.article).toHaveProperty("created_at");
+        expect(res.body.article).toHaveProperty("comment_count", 0);
+      });
+  });
+
+  it("should return 400 for missing required fields", () => {
+    const newArticle = {
+      title: "New Article Title",
+      body: "This is the body of the new article",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then((res) => {
+        expect(res.body.message).toBe("Missing required fields");
+      });
+  });
+});

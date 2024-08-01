@@ -1,10 +1,13 @@
 const db = require("../db/connection");
-const { fetchArticleById, fetchArticles, updateArticleVotes } = require("../models/article.models");
+const {
+  fetchArticleById,
+  fetchArticles,
+  updateArticleVotes,
+  addArticle,
+} = require("../models/article.models");
 
 const getArticleById = (req, res, next) => {
   const { article_id } = req.params;
-
-  
 
   fetchArticleById(article_id)
     .then((article) => {
@@ -20,22 +23,35 @@ const getArticleById = (req, res, next) => {
 };
 
 const getArticles = (req, res, next) => {
-  const{sort_by, order, topic} = req.query
+  const { sort_by, order, topic } = req.query;
   fetchArticles(sort_by, order, topic)
     .then((articles) => {
       res.status(200).send({ articles });
     })
-    .catch(next)
+    .catch(next);
 };
 
-const patchArticleById = (req,res,next) => {
-  const {article_id} = req.params
-  const {inc_votes} = req.body
+const patchArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
 
-  updateArticleVotes(article_id,inc_votes)
-  .then((article) => {
-    res.status(200).send({article})
-  })
-  .catch(next)
-}
-module.exports = { getArticleById, getArticles, patchArticleById };
+  updateArticleVotes(article_id, inc_votes)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+const postArticle = (req, res, next) => {
+  const { author, title, body, topic, article_img_url } = req.body;
+
+  if (!author || !title || !body || !topic) {
+    return res.status(400).send({ message: "Missing required fields" });
+  }
+  addArticle({ author, title, body, topic, article_img_url })
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch(next);
+};
+module.exports = { getArticleById, getArticles, patchArticleById, postArticle };
