@@ -154,9 +154,14 @@ const addArticle = ({ author, title, body, topic, article_img_url }) => {
     });
 };
 
+
+
+
+
 module.exports = {
   fetchArticleById,
   fetchArticles,
   updateArticleVotes,
   addArticle,
+
 };

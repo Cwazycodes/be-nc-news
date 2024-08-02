@@ -640,3 +640,38 @@ describe("POST /api/articles", () => {
       });
   });
 });
+
+describe("POST /api/topics", () => {
+  it("should add a new topic and return the newly added topic", () => {
+    const newTopic = {
+      slug: "new-topic",
+      description: "This is a new topic",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(201)
+      .then((res) => {
+        expect(res.body.topic).toHaveProperty("slug", newTopic.slug);
+        expect(res.body.topic).toHaveProperty(
+          "description",
+          newTopic.description
+        );
+      });
+  });
+
+  it("should return 400 for missing required fields", () => {
+    const incompleteTopic = {
+      description: "This is a topic without a slug",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(incompleteTopic)
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Missing required fields");
+      });
+  });
+});

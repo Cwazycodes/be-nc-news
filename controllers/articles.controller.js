@@ -4,6 +4,7 @@ const {
   fetchArticles,
   updateArticleVotes,
   addArticle,
+
 } = require("../models/article.models");
 
 const getArticleById = (req, res, next) => {
@@ -54,4 +55,12 @@ const postArticle = (req, res, next) => {
     })
     .catch(next);
 };
-module.exports = { getArticleById, getArticles, patchArticleById, postArticle };
+
+
+module.exports = {
+  getArticleById,
+  getArticles,
+  patchArticleById,
+  postArticle,
+
+};
