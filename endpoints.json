@@ -187,5 +187,14 @@
         }
       }
     }
+  },
+
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes an article and its comments based on the article ID",
+    "responses": {
+      "204": "No content",
+      "400": "Invalid article ID type",
+      "404": "Article not found"
+    }
   }
 }
