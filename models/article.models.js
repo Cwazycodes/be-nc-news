@@ -102,6 +102,7 @@ const fetchArticles = (sort_by = "created_at", order = "desc", topic) => {
     });
 };
 
+
 const updateArticleVotes = (article_id, inc_votes) => {
   if (!inc_votes) {
     return Promise.reject({ status: 400, msg: "Missing required fields" });
@@ -154,30 +155,30 @@ const addArticle = ({ author, title, body, topic, article_img_url }) => {
     });
 };
 
+
+
 const deleteArticleById = (article_id) => {
   if (isNaN(article_id)) {
-    return Promise.reject({ status: 400, msg: "Invalid article ID type" });
+    return Promise.reject({ status: 400, msg: 'Invalid article ID type' });
   }
 
-  return db
-    .query("DELETE FROM comments WHERE article_id = $1", [article_id])
+  return db.query('DELETE FROM comments WHERE article_id = $1', [article_id])
     .then(() => {
-      return db.query(
-        "DELETE FROM articles WHERE article_id = $1 RETURNING *",
-        [article_id]
-      );
+      return db.query('DELETE FROM articles WHERE article_id = $1 RETURNING *', [article_id]);
     })
     .then((result) => {
       if (result.rowCount === 0) {
-        return Promise.reject({ status: 404, msg: "Article not found" });
+        return Promise.reject({ status: 404, msg: 'Article not found' });
       }
     });
 };
+
+
 
 module.exports = {
   fetchArticleById,
   fetchArticles,
   updateArticleVotes,
   addArticle,
-  deleteArticleById,
+deleteArticleById
 };

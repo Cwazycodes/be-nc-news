@@ -284,6 +284,7 @@ describe("GET /api/articles", () => {
         expect(body.msg).toBe("Topic not found");
       });
   });
+  
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
